@@ -15,7 +15,6 @@
 @property (strong, nonatomic) NSString *coffeeStatusString;
 
 - (id)init;
-- (void)setCoffeeStatus;
 - (void)refreshCoffeeStatus;
 - (NSString *)getCoffeeStatus;
 

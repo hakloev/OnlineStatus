@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		073E499918DF063800F98F2B /* OfficeOpenModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 073E499818DF063800F98F2B /* OfficeOpenModel.m */; };
 		07F7842718DDE22300A8C9DC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07F7842618DDE22300A8C9DC /* Foundation.framework */; };
 		07F7842918DDE22300A8C9DC /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07F7842818DDE22300A8C9DC /* CoreGraphics.framework */; };
 		07F7842B18DDE22300A8C9DC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07F7842A18DDE22300A8C9DC /* UIKit.framework */; };
@@ -35,6 +36,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		073E499718DF063800F98F2B /* OfficeOpenModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OfficeOpenModel.h; sourceTree = "<group>"; };
+		073E499818DF063800F98F2B /* OfficeOpenModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OfficeOpenModel.m; sourceTree = "<group>"; };
 		07F7842318DDE22300A8C9DC /* OnlineStatus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnlineStatus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		07F7842618DDE22300A8C9DC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		07F7842818DDE22300A8C9DC /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -82,6 +85,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		072DFFD618DE9B4A0043765D /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				07F7845B18DDED8900A8C9DC /* CoffeModel.h */,
+				07F7845C18DDED8900A8C9DC /* CoffeModel.m */,
+				073E499718DF063800F98F2B /* OfficeOpenModel.h */,
+				073E499818DF063800F98F2B /* OfficeOpenModel.m */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
 		07F7841A18DDE22300A8C9DC = {
 			isa = PBXGroup;
 			children = (
@@ -115,6 +129,7 @@
 		07F7842C18DDE22300A8C9DC /* OnlineStatus */ = {
 			isa = PBXGroup;
 			children = (
+				072DFFD618DE9B4A0043765D /* Model */,
 				07F7843518DDE22300A8C9DC /* AppDelegate.h */,
 				07F7843618DDE22300A8C9DC /* AppDelegate.m */,
 				07F7843818DDE22300A8C9DC /* Main.storyboard */,
@@ -122,8 +137,6 @@
 				07F7843C18DDE22300A8C9DC /* ViewController.m */,
 				07F7843E18DDE22300A8C9DC /* Images.xcassets */,
 				07F7842D18DDE22300A8C9DC /* Supporting Files */,
-				07F7845B18DDED8900A8C9DC /* CoffeModel.h */,
-				07F7845C18DDED8900A8C9DC /* CoffeModel.m */,
 			);
 			path = OnlineStatus;
 			sourceTree = "<group>";
@@ -257,6 +270,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				073E499918DF063800F98F2B /* OfficeOpenModel.m in Sources */,
 				07F7843D18DDE22300A8C9DC /* ViewController.m in Sources */,
 				07F7845D18DDED8900A8C9DC /* CoffeModel.m in Sources */,
 				07F7843718DDE22300A8C9DC /* AppDelegate.m in Sources */,
@@ -467,6 +481,7 @@
 				07F7845718DDE22300A8C9DC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		07F7845818DDE22300A8C9DC /* Build configuration list for PBXNativeTarget "OnlineStatusTests" */ = {
 			isa = XCConfigurationList;
@@ -475,6 +490,7 @@
 				07F7845A18DDE22300A8C9DC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

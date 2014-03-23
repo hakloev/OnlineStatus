@@ -19,8 +19,14 @@
     [super viewDidLoad];
 	
     // Do any additional setup after loading the view, typically from a nib.
+    [[self officeActivity] startAnimating];
+    [[self coffeActivity] startAnimating];
+    
     self.coffeeModel = [[CoffeModel alloc] init];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(coffeeModelUpdated) name:@"statusUpdated" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(coffeeModelUpdated) name:@"coffeeUpdated" object:nil];
+    
+    self.officeOpenModel = [[OfficeOpenModel alloc] init];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(officeOpenModelUpdated) name:@"lightUpdated" object:nil];
 }
 
 - (void)didReceiveMemoryWarning
@@ -33,7 +39,13 @@
 {
     if (self.coffeeModel != nil) {
         [[self coffeLabel] setText:@"Henter informasjon..."];
+        [[self coffeActivity] startAnimating];
         [[self coffeeModel] refreshCoffeeStatus];
+    }
+    if (self.officeOpenModel != nil) {
+        [[self lightLabel] setText:@"Henter informasjon..."];
+        [[self officeActivity] startAnimating];
+        [[self officeOpenModel] refreshLightValue];
     }
 
 }
@@ -41,7 +53,15 @@
 - (void)coffeeModelUpdated
 {
     NSLog(@"coffeeModelUpdated");
+    [[self coffeActivity] stopAnimating];
     [[self coffeLabel] setText:[[self coffeeModel] getCoffeeStatus]];
+}
+
+- (void)officeOpenModelUpdated
+{
+    NSLog(@"officeOpenModelUpdated");
+    [[self officeActivity] stopAnimating];
+    [[self lightLabel] setText:[[self officeOpenModel] getLightStatus]];
 }
 
 @end

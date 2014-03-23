@@ -8,11 +8,17 @@
 
 #import <UIKit/UIKit.h>
 #import "CoffeModel.h"
+#import "OfficeOpenModel.h"
 
 @interface ViewController : UIViewController
 
 @property (strong, nonatomic) CoffeModel *coffeeModel;
-@property (strong, nonatomic) IBOutlet UILabel *statusLabel;
+@property (strong, nonatomic) OfficeOpenModel *officeOpenModel;
+
 @property (strong, nonatomic) IBOutlet UILabel *coffeLabel;
+@property (strong, nonatomic) IBOutlet UILabel *lightLabel;
+
+@property (strong, nonatomic) IBOutlet UIActivityIndicatorView *officeActivity;
+@property (strong, nonatomic) IBOutlet UIActivityIndicatorView *coffeActivity;
 
 @end
