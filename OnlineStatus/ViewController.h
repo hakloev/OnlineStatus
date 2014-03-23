@@ -7,7 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "CoffeModel.h"
 
 @interface ViewController : UIViewController
+
+@property (strong, nonatomic) CoffeModel *coffeeModel;
+@property (strong, nonatomic) IBOutlet UILabel *statusLabel;
+@property (strong, nonatomic) IBOutlet UILabel *coffeLabel;
 
 @end

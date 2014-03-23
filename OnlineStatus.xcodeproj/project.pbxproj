@@ -21,6 +21,7 @@
 		07F7844818DDE22300A8C9DC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07F7842A18DDE22300A8C9DC /* UIKit.framework */; };
 		07F7845018DDE22300A8C9DC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 07F7844E18DDE22300A8C9DC /* InfoPlist.strings */; };
 		07F7845218DDE22300A8C9DC /* OnlineStatusTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 07F7845118DDE22300A8C9DC /* OnlineStatusTests.m */; };
+		07F7845D18DDED8900A8C9DC /* CoffeModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 07F7845C18DDED8900A8C9DC /* CoffeModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,8 @@
 		07F7844D18DDE22300A8C9DC /* OnlineStatusTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OnlineStatusTests-Info.plist"; sourceTree = "<group>"; };
 		07F7844F18DDE22300A8C9DC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		07F7845118DDE22300A8C9DC /* OnlineStatusTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OnlineStatusTests.m; sourceTree = "<group>"; };
+		07F7845B18DDED8900A8C9DC /* CoffeModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoffeModel.h; sourceTree = "<group>"; };
+		07F7845C18DDED8900A8C9DC /* CoffeModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoffeModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +122,8 @@
 				07F7843C18DDE22300A8C9DC /* ViewController.m */,
 				07F7843E18DDE22300A8C9DC /* Images.xcassets */,
 				07F7842D18DDE22300A8C9DC /* Supporting Files */,
+				07F7845B18DDED8900A8C9DC /* CoffeModel.h */,
+				07F7845C18DDED8900A8C9DC /* CoffeModel.m */,
 			);
 			path = OnlineStatus;
 			sourceTree = "<group>";
@@ -199,6 +204,9 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "Håkon Ødegård Løvdal";
 				TargetAttributes = {
+					07F7842218DDE22300A8C9DC = {
+						DevelopmentTeam = R9REPF5544;
+					};
 					07F7844318DDE22300A8C9DC = {
 						TestTargetID = 07F7842218DDE22300A8C9DC;
 					};
@@ -250,6 +258,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				07F7843D18DDE22300A8C9DC /* ViewController.m in Sources */,
+				07F7845D18DDED8900A8C9DC /* CoffeModel.m in Sources */,
 				07F7843718DDE22300A8C9DC /* AppDelegate.m in Sources */,
 				07F7843318DDE22300A8C9DC /* main.m in Sources */,
 			);
@@ -376,6 +385,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OnlineStatus/OnlineStatus-Prefix.pch";
 				INFOPLIST_FILE = "OnlineStatus/OnlineStatus-Info.plist";
@@ -389,6 +399,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OnlineStatus/OnlineStatus-Prefix.pch";
 				INFOPLIST_FILE = "OnlineStatus/OnlineStatus-Info.plist";
