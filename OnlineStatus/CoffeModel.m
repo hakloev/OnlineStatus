@@ -35,20 +35,18 @@
     [format setDateFormat:@"yyyy-MM-dd"];
     NSDate *today = [[NSDate alloc] init];
     
-    if ([[format stringFromDate:lastCoffeeMade] isEqualToString:[format stringFromDate:today]]) {
-        [format setDateFormat:@"HH:mm:ss"];
-        NSString *lastCoffee = [format stringFromDate:lastCoffeeMade];
-        return [NSString stringWithFormat:@"Antall kanner idag: %@\nSiste klokka: %@", [[self coffeeStatus] objectAtIndex:0], lastCoffee];
+    if ([[self coffeeStatus] objectAtIndex:0] == nil) {
+     return @"Kunne ikke hente informasjon\ngrunnet nettverksfeil!";
     } else {
-        return @"Ingen kaffe laget i dag!\n\nHar kontorvakta gjort\njobben sin?";
+        if ([[format stringFromDate:lastCoffeeMade] isEqualToString:[format stringFromDate:today]]) {
+            [format setDateFormat:@"HH:mm:ss"];
+            NSString *lastCoffee = [format stringFromDate:lastCoffeeMade];
+            return [NSString stringWithFormat:@"Antall kanner idag: %@\nSiste klokka: %@", [[self coffeeStatus] objectAtIndex:0], lastCoffee];
+        } else {
+            return @"Ingen kaffe laget i dag!\n\nHar kontorvakta gjort\njobben sin?";
+        }
     }
-    
-    /*if ([[self coffeeStatus] objectAtIndex:0] == nil) {
-        return @"Kunne ikke hente informasjon\ngrunnet nettverksfeil!";
-    }*/
-    
-    return @"Kunne ikke hente informasjon\ngrunnet nettverksfeil!";
-
+    //return @"Kunne ikke hente informasjon\ngrunnet nettverksfeil!";
 }
 
 #pragma mark NSURLConnection Delegate Methods

@@ -12,7 +12,6 @@
 
 @property (strong, nonatomic) NSMutableData *responseData;
 @property (strong, nonatomic) NSArray *coffeeStatus;
-@property (strong, nonatomic) NSString *coffeeStatusString;
 
 - (id)init;
 - (void)refreshCoffeeStatus;
