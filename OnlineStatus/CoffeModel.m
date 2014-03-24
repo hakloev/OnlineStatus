@@ -62,6 +62,7 @@
     if (self.responseData == nil) {
         NSLog(@"getCoffeStatus response nil");
         self.returnString = @"Kunne ikke hente informasjon\ngrunnet nettverksfeil!";
+        return;
     } else {
         NSLog(@"getCoffeStatus response not nil");
         self.coffeeStatus = [[[NSString alloc] initWithData:[self responseData] encoding:NSUTF8StringEncoding] componentsSeparatedByString:@"\n"];
@@ -78,8 +79,10 @@
         [format setDateFormat:@"HH:mm:ss"];
         NSString *lastCoffee = [format stringFromDate:lastCoffeeMade];
         self.returnString = [NSString stringWithFormat:@"Antall kanner idag: %@\nSiste klokka: %@", [[self coffeeStatus] objectAtIndex:0], lastCoffee];
+        return;
     } else {
         self.returnString = @"Ingen kaffe laget i dag!\n\nHar kontorvakta gjort\njobben sin?";
+        return;
     }
 }
 

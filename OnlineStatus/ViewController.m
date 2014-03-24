@@ -77,6 +77,8 @@
     
     if ([[[self officeOpenModel] statusArray] count] == 1) {
         [[self meetingView] setText:[[[self officeOpenModel] statusArray] objectAtIndex:0]];
+        [[self servantLabel] setText:@" "];
+        [[self statusLabel] setText:@" "];
     } else {
         // First we print the servant label
         [[self servantLabel] setText:[[[self officeOpenModel] statusArray] objectAtIndex:0]];
@@ -90,7 +92,6 @@
             [stringForLabel appendString:@"\n"];
         }
         [[self meetingView] setText:stringForLabel];
-        //self.meetingView.textColor = [UIColor whiteColor];
     }
 }
 
