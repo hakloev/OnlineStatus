@@ -12,13 +12,7 @@
 
 @interface ViewController : UIViewController
 
-@property (strong, nonatomic) CoffeModel *coffeeModel;
-@property (strong, nonatomic) OfficeOpenModel *officeOpenModel;
-
-@property (strong, nonatomic) IBOutlet UILabel *coffeLabel;
-@property (strong, nonatomic) IBOutlet UILabel *lightLabel;
-
-@property (strong, nonatomic) IBOutlet UIActivityIndicatorView *officeActivity;
-@property (strong, nonatomic) IBOutlet UIActivityIndicatorView *coffeActivity;
+- (void)coffeeModelUpdated;
+- (void)officeOpenModelUpdated;
 
 @end

@@ -8,13 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
-@interface OfficeOpenModel : NSObject<NSURLConnectionDelegate>
+@interface OfficeOpenModel : NSObject
 
-@property (strong, nonatomic) NSMutableData *responseData;
-@property (strong, nonatomic) NSString* lightValue;
+@property (strong, nonatomic) NSMutableArray *statusArray;
 
 - (id)init;
-- (void)refreshLightValue;
-- (NSString *)getLightStatus;
+- (void)refreshOfficeData;
+//- (NSString *)getLightStatus;
 
 @end

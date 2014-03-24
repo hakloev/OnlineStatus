@@ -8,10 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface CoffeModel : NSObject<NSURLConnectionDelegate>
-
-@property (strong, nonatomic) NSMutableData *responseData;
-@property (strong, nonatomic) NSArray *coffeeStatus;
+@interface CoffeModel : NSObject
 
 - (id)init;
 - (void)refreshCoffeeStatus;
