@@ -48,6 +48,7 @@
 
 - (IBAction)refreshButton:(id)sender
 {
+    NSLog(@" ");
     if (self.coffeeModel != nil) {
         [[self coffeLabel] setText:@"Henter informasjon..."];
         [[self coffeActivity] startAnimating];
@@ -65,7 +66,7 @@
 {
     NSLog(@"coffeeModelUpdated");
     [[self coffeActivity] stopAnimating];
-    [[self coffeLabel] setText:[[self coffeeModel] getCoffeeStatus]];
+    [[self coffeLabel] setText:[[self coffeeModel] returnString]];
 }
 
 - (void)officeOpenModelUpdated

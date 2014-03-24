@@ -10,9 +10,11 @@
 
 @interface CoffeModel ()
 
-@property (strong, nonatomic) NSMutableArray *responseData;
+@property (strong, nonatomic) NSMutableData *responseData;
 @property (strong, nonatomic) NSArray *coffeeStatus;
 @property (strong, nonatomic) NSOperationQueue *queue;
+@property (strong, nonatomic) NSURL *coffeeUrl;
+@property (strong, nonatomic) NSURLRequest *req;
 
 @end
 
@@ -23,6 +25,9 @@
     self = [super init];
     if (self) {
         self.queue = [[NSOperationQueue alloc] init];
+        self.coffeeUrl = [NSURL URLWithString:@"http://draug.online.ntnu.no/coffee.txt"];
+        self.req = [[NSURLRequest alloc] initWithURL:self.coffeeUrl];
+
         [self refreshCoffeeStatus];
     }
     return self;
@@ -30,26 +35,21 @@
 
 - (void)refreshCoffeeStatus
 {
-    self.responseData = [[NSMutableArray alloc] init];
-    
-    NSURL *coffeeUrl = [NSURL URLWithString:@"http://draug.online.ntnu.no/coffee.txt"];
-    NSURLRequest *req = [[NSURLRequest alloc] initWithURL:coffeeUrl];
-    //NSURLConnection *conn = [[NSURLConnection alloc] initWithRequest:req delegate:self startImmediately:YES];
+    self.responseData = [[NSMutableData alloc] init];
     
     __block NSUInteger outstandingRequests = 1;
-    [NSURLConnection sendAsynchronousRequest:req queue:self.queue
+    [NSURLConnection sendAsynchronousRequest:self.req queue:self.queue
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-                               NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                                if ([data length] > 0 && connectionError == nil) {
-                                   [[self responseData] addObject:[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] componentsSeparatedByString:@"\n"]];
-                                   NSLog(@"doneWithRefreshCoffeeData");
+                                   [[self responseData] appendData:data];
+                                   NSLog(@"Done with coffe request");
                                } else {
-                                   self.coffeeStatus = nil;
                                    self.responseData = nil;
-                                   NSLog(@"Kaffe pakka feila!");
+                                   NSLog(@"Coffee package failed");
                                }
                                outstandingRequests--;
                                if (outstandingRequests == 0) {
+                                   [self setCoffeeStatus];
                                    dispatch_async(dispatch_get_main_queue(),^{
                                        [[NSNotificationCenter defaultCenter] postNotificationName:@"coffeeUpdated" object:self];
                                    });
@@ -57,12 +57,14 @@
                             }];
 }
 
-- (NSString *)getCoffeeStatus
+- (void)setCoffeeStatus
 {
-    if ([[self responseData] objectAtIndex:0] != nil) {
-        self.coffeeStatus = [[self responseData] objectAtIndex:0];
+    if (self.responseData == nil) {
+        NSLog(@"getCoffeStatus response nil");
+        self.returnString = @"Kunne ikke hente informasjon\ngrunnet nettverksfeil!";
     } else {
-        return @"Kunne ikke hente informasjon\ngrunnet nettverksfeil!";
+        NSLog(@"getCoffeStatus response not nil");
+        self.coffeeStatus = [[[NSString alloc] initWithData:[self responseData] encoding:NSUTF8StringEncoding] componentsSeparatedByString:@"\n"];
     }
     
     NSDateFormatter *format = [[NSDateFormatter alloc] init];
@@ -71,58 +73,14 @@
     [format setDateFormat:@"yyyy-MM-dd"];
     NSDate *today = [[NSDate alloc] init];
     
-    if ([[self coffeeStatus] objectAtIndex:0] == nil) {
-        return @"Kunne ikke hente informasjon\ngrunnet nettverksfeil!";
+    
+    if ([[format stringFromDate:lastCoffeeMade] isEqualToString:[format stringFromDate:today]]) {
+        [format setDateFormat:@"HH:mm:ss"];
+        NSString *lastCoffee = [format stringFromDate:lastCoffeeMade];
+        self.returnString = [NSString stringWithFormat:@"Antall kanner idag: %@\nSiste klokka: %@", [[self coffeeStatus] objectAtIndex:0], lastCoffee];
     } else {
-        if ([[format stringFromDate:lastCoffeeMade] isEqualToString:[format stringFromDate:today]]) {
-            [format setDateFormat:@"HH:mm:ss"];
-            NSString *lastCoffee = [format stringFromDate:lastCoffeeMade];
-            return [NSString stringWithFormat:@"Antall kanner idag: %@\nSiste klokka: %@", [[self coffeeStatus] objectAtIndex:0], lastCoffee];
-        } else {
-            return @"Ingen kaffe laget i dag!\n\nHar kontorvakta gjort\njobben sin?";
-        }
+        self.returnString = @"Ingen kaffe laget i dag!\n\nHar kontorvakta gjort\njobben sin?";
     }
 }
 
-/*
-#pragma mark NSURLConnection Delegate Methods
-
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
-{
-    //NSLog(@"CoffeModel: didReciveResponse");
-    self.responseData = [[NSMutableData alloc] init];
-}
-
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
-{
-    //NSLog(@"CoffeModel: didReciveData");
-    [[self responseData] appendData:data];
-}
-
-- (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse
-{
-    //NSLog(@"CoffeModel: didReciveNothing");
-    return nil;
-}
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection
-{
-    //NSLog(@"CoffeModel: finishedLoading");
-    NSString *tempString = [[NSString alloc] initWithData:[self responseData] encoding:NSUTF8StringEncoding];
-    self.coffeeStatus = [tempString componentsSeparatedByString:@"\n"];
-    dispatch_async(dispatch_get_main_queue(),^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"coffeeUpdated" object:self];
-    });
-}
-
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
-{
-    //NSLog(@"CoffeModel: didFail");
-    self.coffeeStatus = nil;
-    dispatch_async(dispatch_get_main_queue(),^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"coffeeUpdated" object:self];
-    });
-}
-*/
- 
 @end

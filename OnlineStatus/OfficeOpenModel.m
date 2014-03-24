@@ -57,14 +57,8 @@
                                    }
                                    outstandingRequests--;
                                    if (outstandingRequests == 0) {
-                                       //NSLog([[NSString alloc] initWithFormat:@"%lu", (unsigned long)[[self responseData] count]]);
-                                       /*
-                                       for (NSData *dataList in [self responseData]) {
-                                           NSLog([[NSString alloc] initWithData:dataList encoding:NSUTF8StringEncoding]);
-                                       }
-                                       */
-                                       NSLog(@"doneWithRefreshData");
-                                       [self createStatusArray];
+                                       [self setOfficeStatus];
+                                       NSLog(@"Done with refresh office data");
                                        dispatch_async(dispatch_get_main_queue(),^{
                                            [[NSNotificationCenter defaultCenter] postNotificationName:@"officeUpdated" object:self];
                                        });
@@ -73,7 +67,7 @@
     }
 }
 
-- (void)createStatusArray
+- (void)setOfficeStatus
 {
     NSLog(@"createStatusArray");
     self.statusArray = [[NSMutableArray alloc] init];

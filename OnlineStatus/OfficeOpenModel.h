@@ -14,6 +14,5 @@
 
 - (id)init;
 - (void)refreshOfficeData;
-//- (NSString *)getLightStatus;
 
 @end
