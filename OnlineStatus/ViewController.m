@@ -13,13 +13,15 @@
 @property (strong, nonatomic) CoffeModel *coffeeModel;
 @property (strong, nonatomic) OfficeOpenModel *officeOpenModel;
 
-@property (strong, nonatomic) IBOutlet UILabel *coffeLabel;
 @property (strong, nonatomic) IBOutlet UILabel *servantLabel;
 @property (strong, nonatomic) IBOutlet UILabel *statusLabel;
 @property (strong, nonatomic) IBOutlet UITextView *meetingView;
+@property (strong, nonatomic) IBOutlet UITextView *coffeeView;
 
 @property (strong, nonatomic) IBOutlet UIActivityIndicatorView *officeActivity;
 @property (strong, nonatomic) IBOutlet UIActivityIndicatorView *coffeActivity;
+
+@property (strong, nonatomic) NSThread *thread;
 
 @end
 
@@ -33,11 +35,33 @@
     [[self officeActivity] startAnimating];
     [[self coffeActivity] startAnimating];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(coffeeModelUpdated) name:@"coffeeUpdated" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(officeOpenModelUpdated) name:@"officeUpdated" object:nil];
+    
+    self.thread = [[NSThread alloc] initWithTarget:self selector:@selector(updateModels) object:nil];
+    [[self thread] start];
+    /*
     self.coffeeModel = [[CoffeModel alloc] init];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(coffeeModelUpdated) name:@"coffeeUpdated" object:nil];
     
     self.officeOpenModel = [[OfficeOpenModel alloc] init];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(officeOpenModelUpdated) name:@"officeUpdated" object:nil];
+     */
+}
+
+- (void)updateModels
+{
+    NSLog(@"update models");
+    if (self.coffeeModel == nil) {
+        self.coffeeModel = [[CoffeModel alloc] init];
+    } else {
+        [[self coffeeModel] refreshCoffeeStatus];
+    }
+    if (self.officeOpenModel == nil) {
+        self.officeOpenModel = [[OfficeOpenModel alloc] init];
+    } else {
+        [[self officeOpenModel] refreshOfficeData];
+    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -48,25 +72,32 @@
 
 - (IBAction)refreshButton:(id)sender
 {
+    
+    [[self servantLabel] setText:@" "];
+    [[self statusLabel] setText:@" "];
     NSLog(@" ");
     if (self.coffeeModel != nil) {
-        [[self coffeLabel] setText:@"Henter informasjon..."];
+        [[self coffeeView] setText:@"Henter informasjon..."];
         [[self coffeActivity] startAnimating];
-        [[self coffeeModel] refreshCoffeeStatus];
+        //[[self coffeeModel] refreshCoffeeStatus];
+        //[[self coffeeModel] refreshCoffeeStatus];
     }
     
     if (self.officeOpenModel != nil) {
         [[self meetingView] setText:@"Henter informasjon..."];
         [[self officeActivity] startAnimating];
-        [[self officeOpenModel] refreshOfficeData];
+        //[[self officeOpenModel] refreshOfficeData];
+        //[[self officeOpenModel] refreshOfficeData];
     }
+    self.thread = [[NSThread alloc] initWithTarget:self selector:@selector(updateModels) object:nil];
+    [[self thread] start];
 }
 
 - (void)coffeeModelUpdated
 {
     NSLog(@"coffeeModelUpdated");
     [[self coffeActivity] stopAnimating];
-    [[self coffeLabel] setText:[[self coffeeModel] returnString]];
+    [[self coffeeView] setText:[[self coffeeModel] returnString]];
 }
 
 - (void)officeOpenModelUpdated
@@ -77,8 +108,6 @@
     
     if ([[[self officeOpenModel] statusArray] count] == 1) {
         [[self meetingView] setText:[[[self officeOpenModel] statusArray] objectAtIndex:0]];
-        [[self servantLabel] setText:@" "];
-        [[self statusLabel] setText:@" "];
     } else {
         // First we print the servant label
         [[self servantLabel] setText:[[[self officeOpenModel] statusArray] objectAtIndex:0]];
@@ -90,6 +119,7 @@
             NSString *currentString = [[[self officeOpenModel] statusArray] objectAtIndex:i];
             [stringForLabel appendString:currentString];
             [stringForLabel appendString:@"\n"];
+            NSLog(currentString);
         }
         [[self meetingView] setText:stringForLabel];
     }

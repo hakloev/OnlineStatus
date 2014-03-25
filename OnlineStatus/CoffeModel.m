@@ -26,8 +26,7 @@
     if (self) {
         self.queue = [[NSOperationQueue alloc] init];
         self.coffeeUrl = [NSURL URLWithString:@"http://draug.online.ntnu.no/coffee.txt"];
-        self.req = [[NSURLRequest alloc] initWithURL:self.coffeeUrl];
-
+        self.req = [NSURLRequest requestWithURL:self.coffeeUrl cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:2.0];
         [self refreshCoffeeStatus];
     }
     return self;

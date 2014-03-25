@@ -29,10 +29,10 @@
         NSURL *meetingUrl = [NSURL URLWithString:@"https://online.ntnu.no/notifier/online/meetings"];
         NSURL *officeUrl = [NSURL URLWithString:@"https://online.ntnu.no/notifier/online/office"];
         
-        NSURLRequest *lightReq = [[NSURLRequest alloc] initWithURL:lightUrl];
-        NSURLRequest *servantReq = [[NSURLRequest alloc] initWithURL:servantUrl];
-        NSURLRequest *meetingReq = [[NSURLRequest alloc] initWithURL:meetingUrl];
-        NSURLRequest *officeReq = [[NSURLRequest alloc] initWithURL:officeUrl];
+        NSURLRequest *lightReq = [NSURLRequest requestWithURL:lightUrl cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:2.0];
+        NSURLRequest *servantReq = [NSURLRequest requestWithURL:servantUrl cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:2.0];
+        NSURLRequest *meetingReq = [NSURLRequest requestWithURL:meetingUrl cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:2.0];
+        NSURLRequest *officeReq = [NSURLRequest requestWithURL:officeUrl cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:2.0];
         
         self.requestArray = [[NSMutableArray alloc] initWithObjects:officeReq, servantReq, meetingReq, lightReq, nil];
         self.queue = [[NSOperationQueue alloc] init];
@@ -74,21 +74,24 @@
     
     if ([self responseData] != nil) {
         NSString *officeeStatus = [[self responseData] objectForKey:[[self requestArray] objectAtIndex:0]];
-        //NSString *officeeStatus = @"free";
+        NSLog(officeeStatus);
+        //NSString *officeeStatus = @"free\n";
         
         NSArray *servants = [[[self responseData] objectForKey:[[self requestArray] objectAtIndex:1]] componentsSeparatedByString:@"\n"];
         //NSArray *servants = [[NSArray alloc] initWithObjects:@"21:00-22:00 Håkon Løvdal", @"22:00-23:00 Truls Pettersen", @"23:00-23:59 Fredrik Berg", nil];
         
-        NSArray *meetings = [[[self responseData] objectForKey:[[self requestArray] objectAtIndex:2]] componentsSeparatedByString:@"\n"];
+        NSMutableArray *meetings = [[NSMutableArray alloc] initWithArray:[[[self responseData] objectForKey:[[self requestArray] objectAtIndex:2]] componentsSeparatedByString:@"\n"]];
         //NSArray *meetings = [[NSArray alloc] initWithObjects:@"10.00-11.00 fagKom", @"11.00-12.00 bedKom", @"12.00-13.00 triKom", @"13.00-14.00 arrKom", @"15.00-16.00 appKom", @"17.00-18.00 proKom", @"19.00-20.00 velKom", @"20.00-21.00 hovedStyret", @"10.00-18.00 kradalbyKom", nil];
         
         int lightValue = [[[self responseData] objectForKey:[[self requestArray] objectAtIndex:3]] intValue];
+        NSLog(@"%i", lightValue);
         
         // MUST ONLY PRINT THE SERVANT AT HIS/HER GIVEN TIME
         NSString *searchString = [servants objectAtIndex:0];
         NSError *error = NULL;
         NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\d+:\\d+-\\d+:\\d+) ([a-zA-æøåÆØÅ ]+)" options:0 error:&error];
         NSUInteger numberOfMatches = [regex numberOfMatchesInString:searchString options:0 range:NSMakeRange(0, [searchString length])];
+        NSLog(searchString);
         // Hvvis det er en kontorvakt i lista:
         if (numberOfMatches >= 1) {
             NSDateFormatter *dateFormater = [[NSDateFormatter alloc] init];
@@ -96,12 +99,9 @@
             NSDate *servantStart = [dateFormater dateFromString:[searchString substringToIndex:2]];
             NSDate *servantEnd = [dateFormater dateFromString:[searchString substringWithRange:NSMakeRange(6, 2)]];
             NSDate *now = [[NSDate alloc] init];
-            //BOOL bol = [[dateFormater stringFromDate:servantStart] intValue] <= [[dateFormater stringFromDate:now] intValue] && [[dateFormater stringFromDate:now] intValue] < [[dateFormater stringFromDate:servantEnd] intValue];
-            //NSLog(@"boolean %d", bol);
-            //NSLog(@"start: %@, end: %@, now: %@", [dateFormater stringFromDate:servantStart], [dateFormater stringFromDate:servantEnd], [dateFormater stringFromDate:now]);
             // Hvis kontorvakta har vakt nå
             if ([[dateFormater stringFromDate:servantStart] intValue] <= [[dateFormater stringFromDate:now] intValue] && [[dateFormater stringFromDate:now] intValue] < [[dateFormater stringFromDate:servantEnd] intValue]) {
-                [[self statusArray] addObject:searchString];
+                [[self statusArray] addObject:[searchString substringFromIndex:12]];
             // Hvis kontorvakta ikke har vakt nå
             } else {
                 [[self statusArray] addObject:@"Ingen kontorvakt nå!"];
@@ -111,10 +111,10 @@
             [[self statusArray] addObject:[servants objectAtIndex:0]];
         }
         
-        if ([officeeStatus isEqualToString:@"free"]) {
+        if ([officeeStatus isEqualToString:@"free\n"]) {
             NSString *statusString;
             NSLog(@"KONTORET ER LEDIG");
-            if (lightValue < 860) {
+            if (lightValue > 0 && lightValue < 860) {
                 NSLog(@"KONTORET ER ÅPENT");
                 statusString = @"ÅPENT";
             } else {
@@ -127,18 +127,20 @@
             NSString *currentMeeting = [[officeeStatus componentsSeparatedByString:@"\n"] objectAtIndex:1];
             if ([[meetings objectAtIndex:0] hasSuffix:currentMeeting]) {
                 [[self statusArray] addObject:[meetings objectAtIndex:0]];
+                [meetings removeObjectAtIndex:0];
+                // FJERN MØTET FRA meetings før fortsettelse
+                
                 NSLog(@"Det er møte: %@", [meetings objectAtIndex:0]);
-                //[[self statusArray] addObject:currentMeeting];
             } else {
                 [[self statusArray] addObject:@"Ukjent møte"];
             }
         }
         
         NSLog(@"meetings count: %lu", (unsigned long)[meetings count]);
-        if ([meetings count] == 2) {
+        if ([meetings count] == 1) {
             [[self statusArray] addObject:@"Det er ikke noe mer på agendaen!"];
         } else {
-            for (int i = 1; i < [meetings count]; i++) {
+            for (int i = 0; i < [meetings count]; i++) {
                 NSLog(@"Current index in meetings: %@", [meetings objectAtIndex:i]);
                 [[self statusArray] addObject:[meetings objectAtIndex:i]];
             }
@@ -146,8 +148,6 @@
     } else {
         [[self statusArray] addObject:@"Kunne ikke hente informasjon\ngrunnet nettverksfeil!"];
     }
-    
-
 }
 
 @end
