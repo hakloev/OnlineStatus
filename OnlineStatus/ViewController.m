@@ -21,7 +21,7 @@
 @property (strong, nonatomic) IBOutlet UIActivityIndicatorView *officeActivity;
 @property (strong, nonatomic) IBOutlet UIActivityIndicatorView *coffeActivity;
 
-@property (strong, nonatomic) NSThread *thread;
+@property BOOL threadIsFinished;
 
 @end
 
@@ -37,21 +37,15 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(coffeeModelUpdated) name:@"coffeeUpdated" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(officeOpenModelUpdated) name:@"officeUpdated" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateModels) name:UIApplicationDidBecomeActiveNotification object:nil];
     
-    self.thread = [[NSThread alloc] initWithTarget:self selector:@selector(updateModels) object:nil];
-    [[self thread] start];
-    /*
-    self.coffeeModel = [[CoffeModel alloc] init];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(coffeeModelUpdated) name:@"coffeeUpdated" object:nil];
-    
-    self.officeOpenModel = [[OfficeOpenModel alloc] init];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(officeOpenModelUpdated) name:@"officeUpdated" object:nil];
-     */
+    self.threadIsFinished = NO;
+    [NSThread detachNewThreadSelector:@selector(updateModels) toTarget:self withObject:nil];
 }
 
 - (void)updateModels
 {
-    NSLog(@"update models");
+    NSLog(@"Update Models");
     if (self.coffeeModel == nil) {
         self.coffeeModel = [[CoffeModel alloc] init];
     } else {
@@ -72,57 +66,59 @@
 
 - (IBAction)refreshButton:(id)sender
 {
-    
-    [[self servantLabel] setText:@" "];
-    [[self statusLabel] setText:@" "];
-    NSLog(@" ");
-    if (self.coffeeModel != nil) {
-        [[self coffeeView] setText:@"Henter informasjon..."];
-        [[self coffeActivity] startAnimating];
-        //[[self coffeeModel] refreshCoffeeStatus];
-        //[[self coffeeModel] refreshCoffeeStatus];
+    if (self.threadIsFinished) {
+        NSLog(@"Refreshing, Thread FREE");
+        [[self servantLabel] setText:@" "];
+        [[self statusLabel] setText:@" "];
+        
+        if (self.coffeeModel != nil) {
+            [[self coffeeView] setText:@"Henter informasjon..."];
+            [[self coffeActivity] startAnimating];
+        }
+        
+        if (self.officeOpenModel != nil) {
+            [[self meetingView] setText:@"Henter informasjon..."];
+            [[self officeActivity] startAnimating];
+        }
+        
+        self.threadIsFinished = NO;
+        [NSThread detachNewThreadSelector:@selector(updateModels) toTarget:self withObject:nil];
+    } else {
+        NSLog(@"Not refreshing, Thread BUSY");
     }
     
-    if (self.officeOpenModel != nil) {
-        [[self meetingView] setText:@"Henter informasjon..."];
-        [[self officeActivity] startAnimating];
-        //[[self officeOpenModel] refreshOfficeData];
-        //[[self officeOpenModel] refreshOfficeData];
-    }
-    self.thread = [[NSThread alloc] initWithTarget:self selector:@selector(updateModels) object:nil];
-    [[self thread] start];
+}
+
+- (IBAction)infoPushed:(id)sender {
+    UIAlertView *someError = [[UIAlertView alloc] initWithTitle: @"Informasjon" message: @"https://github.com/hakloev/OnlineStatus" delegate: self cancelButtonTitle: @"OK" otherButtonTitles: nil];
+    [someError show];
 }
 
 - (void)coffeeModelUpdated
 {
-    NSLog(@"coffeeModelUpdated");
+    NSLog(@"Coffe Model Updated");
     [[self coffeActivity] stopAnimating];
     [[self coffeeView] setText:[[self coffeeModel] returnString]];
 }
 
 - (void)officeOpenModelUpdated
 {
-    NSLog(@"officeOpenModelUpdated");
+    NSLog(@"Office Model Updated");
     
     [[self officeActivity] stopAnimating];
+       
+    [[self servantLabel] setText:[[self officeOpenModel] servantStatus]];
+    [[self statusLabel] setText:[[self officeOpenModel] officeStatus]];
     
-    if ([[[self officeOpenModel] statusArray] count] == 1) {
-        [[self meetingView] setText:[[[self officeOpenModel] statusArray] objectAtIndex:0]];
-    } else {
-        // First we print the servant label
-        [[self servantLabel] setText:[[[self officeOpenModel] statusArray] objectAtIndex:0]];
-        // Then we print the status
-        [[self statusLabel] setText:[[[self officeOpenModel] statusArray] objectAtIndex:1]];
-        // Then we print the agenda
-        NSMutableString *stringForLabel = [[NSMutableString alloc] init];
-        for (int i = 2; i < [[[self officeOpenModel] statusArray] count]; i++) {
-            NSString *currentString = [[[self officeOpenModel] statusArray] objectAtIndex:i];
-            [stringForLabel appendString:currentString];
-            [stringForLabel appendString:@"\n"];
-            NSLog(currentString);
-        }
-        [[self meetingView] setText:stringForLabel];
+    NSMutableString *stringForView = [[NSMutableString alloc] init];
+    for (int i = 0; i < [[[self officeOpenModel] agendaList] count]; i++) {
+        NSString *currentString = [[[self officeOpenModel] agendaList] objectAtIndex:i];
+        [stringForView appendString:currentString];
+        [stringForView appendString:@"\n"];
     }
+    [[self meetingView] setText:stringForView];
+    
+    self.threadIsFinished = YES;
 }
 
 @end

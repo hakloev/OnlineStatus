@@ -10,7 +10,9 @@
 
 @interface OfficeOpenModel : NSObject
 
-@property (strong, nonatomic) NSMutableArray *statusArray;
+@property (strong, nonatomic) NSString *servantStatus;
+@property (strong, nonatomic) NSString *officeStatus;
+@property (strong, nonatomic) NSMutableArray *agendaList;
 
 - (id)init;
 - (void)refreshOfficeData;

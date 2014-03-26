@@ -10,7 +10,7 @@
 
 @interface CoffeModel ()
 
-@property (strong, nonatomic) NSMutableData *responseData;
+@property (strong, atomic) NSMutableData *responseData;
 @property (strong, nonatomic) NSArray *coffeeStatus;
 @property (strong, nonatomic) NSOperationQueue *queue;
 @property (strong, nonatomic) NSURL *coffeeUrl;
@@ -26,7 +26,7 @@
     if (self) {
         self.queue = [[NSOperationQueue alloc] init];
         self.coffeeUrl = [NSURL URLWithString:@"http://draug.online.ntnu.no/coffee.txt"];
-        self.req = [NSURLRequest requestWithURL:self.coffeeUrl cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:2.0];
+        self.req = [NSURLRequest requestWithURL:self.coffeeUrl cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10.0];
         [self refreshCoffeeStatus];
     }
     return self;
@@ -41,7 +41,7 @@
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
                                if ([data length] > 0 && connectionError == nil) {
                                    [[self responseData] appendData:data];
-                                   NSLog(@"Done with coffe request");
+                                   NSLog(@"Done with coffee request");
                                } else {
                                    self.responseData = nil;
                                    NSLog(@"Coffee package failed");
@@ -49,21 +49,22 @@
                                outstandingRequests--;
                                if (outstandingRequests == 0) {
                                    [self setCoffeeStatus];
-                                   dispatch_async(dispatch_get_main_queue(),^{
-                                       [[NSNotificationCenter defaultCenter] postNotificationName:@"coffeeUpdated" object:self];
-                                   });
-                                }
+                                   [self performSelectorOnMainThread:@selector(tellMainThreadReady) withObject:nil waitUntilDone:NO];
+                                   //dispatch_async(dispatch_get_main_queue(),^{
+                                   //    [[NSNotificationCenter defaultCenter] postNotificationName:@"coffeeUpdated" object:self];
+                                   //});
+                               }
                             }];
 }
 
 - (void)setCoffeeStatus
 {
     if (self.responseData == nil) {
-        NSLog(@"getCoffeStatus response nil");
+        NSLog(@"Coffee response nil");
         self.returnString = @"Kunne ikke hente informasjon\ngrunnet nettverksfeil!";
         return;
     } else {
-        NSLog(@"getCoffeStatus response not nil");
+        NSLog(@"Coffee response not nil");
         self.coffeeStatus = [[[NSString alloc] initWithData:[self responseData] encoding:NSUTF8StringEncoding] componentsSeparatedByString:@"\n"];
     }
     
@@ -72,7 +73,6 @@
     NSDate *lastCoffeeMade = [format dateFromString:[[self coffeeStatus] objectAtIndex:1]];
     [format setDateFormat:@"yyyy-MM-dd"];
     NSDate *today = [[NSDate alloc] init];
-    
     
     if ([[format stringFromDate:lastCoffeeMade] isEqualToString:[format stringFromDate:today]]) {
         [format setDateFormat:@"HH:mm:ss"];
@@ -83,6 +83,11 @@
         self.returnString = @"Ingen kaffe laget i dag!\n\nHar kontorvakta gjort\njobben sin?";
         return;
     }
+}
+
+- (void)tellMainThreadReady
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"coffeeUpdated" object:self];
 }
 
 @end
