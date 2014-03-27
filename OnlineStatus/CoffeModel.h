@@ -10,7 +10,7 @@
 
 @interface CoffeModel : NSObject
 
-@property (strong, nonatomic) NSString *returnString;
+@property (atomic) NSString *returnString;
 
 - (id)init;
 - (void)refreshCoffeeStatus;

@@ -10,11 +10,12 @@
 
 @interface CoffeModel ()
 
-@property (strong, atomic) NSMutableData *responseData;
-@property (strong, nonatomic) NSArray *coffeeStatus;
-@property (strong, nonatomic) NSOperationQueue *queue;
-@property (strong, nonatomic) NSURL *coffeeUrl;
-@property (strong, nonatomic) NSURLRequest *req;
+//Private
+@property NSMutableData *responseData; // (strong, atomic) by default
+@property NSArray *coffeeStatus;
+@property NSOperationQueue *queue;
+@property NSURL *coffeeUrl;
+@property NSURLRequest *req;
 
 @end
 
@@ -27,14 +28,14 @@
         self.queue = [[NSOperationQueue alloc] init];
         self.coffeeUrl = [NSURL URLWithString:@"http://draug.online.ntnu.no/coffee.txt"];
         self.req = [NSURLRequest requestWithURL:self.coffeeUrl cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10.0];
-        [self refreshCoffeeStatus];
+        self.responseData = [[NSMutableData alloc] init];
     }
     return self;
 }
 
 - (void)refreshCoffeeStatus
 {
-    self.responseData = [[NSMutableData alloc] init];
+    [[self responseData] setLength:0];
     
     __block NSUInteger outstandingRequests = 1;
     [NSURLConnection sendAsynchronousRequest:self.req queue:self.queue
@@ -43,23 +44,20 @@
                                    [[self responseData] appendData:data];
                                    NSLog(@"Done with coffee request");
                                } else {
-                                   self.responseData = nil;
+                                   [[self responseData] setLength:0];
                                    NSLog(@"Coffee package failed");
                                }
                                outstandingRequests--;
                                if (outstandingRequests == 0) {
                                    [self setCoffeeStatus];
                                    [self performSelectorOnMainThread:@selector(tellMainThreadReady) withObject:nil waitUntilDone:NO];
-                                   //dispatch_async(dispatch_get_main_queue(),^{
-                                   //    [[NSNotificationCenter defaultCenter] postNotificationName:@"coffeeUpdated" object:self];
-                                   //});
                                }
                             }];
 }
 
 - (void)setCoffeeStatus
 {
-    if (self.responseData == nil) {
+    if ([[self responseData] length] == 0) {
         NSLog(@"Coffee response nil");
         self.returnString = @"Kunne ikke hente informasjon\ngrunnet nettverksfeil!";
         return;

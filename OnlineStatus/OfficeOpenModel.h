@@ -8,11 +8,17 @@
 
 #import <Foundation/Foundation.h>
 
+#define lightUrl [NSURL URLWithString:@"http://draug.online.ntnu.no/lys.txt"]
+#define servantUrl [NSURL URLWithString:@"https://online.ntnu.no/notifier/online/servant"]
+#define meetingUrl [NSURL URLWithString:@"https://online.ntnu.no/notifier/online/meetings"]
+#define officeUrl [NSURL URLWithString:@"https://online.ntnu.no/notifier/online/office"]
+#define urlArray [[NSArray alloc] initWithObjects:lightUrl, servantUrl, meetingUrl, officeUrl, nil]
+
 @interface OfficeOpenModel : NSObject
 
-@property (strong, nonatomic) NSString *servantStatus;
-@property (strong, nonatomic) NSString *officeStatus;
-@property (strong, nonatomic) NSMutableArray *agendaList;
+@property (atomic) NSString *servantStatus;
+@property (atomic) NSString *officeStatus;
+@property (atomic) NSMutableArray *agendaList;
 
 - (id)init;
 - (void)refreshOfficeData;

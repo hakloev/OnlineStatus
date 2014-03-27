@@ -21,7 +21,8 @@
 @property (strong, nonatomic) IBOutlet UIActivityIndicatorView *officeActivity;
 @property (strong, nonatomic) IBOutlet UIActivityIndicatorView *coffeActivity;
 
-@property BOOL threadIsFinished;
+@property BOOL coffeeThreadIsFinished;
+@property BOOL officeeThreadIsFinished;
 
 @end
 
@@ -30,30 +31,33 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	
     // Do any additional setup after loading the view, typically from a nib.
+    
     [[self officeActivity] startAnimating];
     [[self coffeActivity] startAnimating];
+    
+    [self setOfficeOpenModel:[[OfficeOpenModel alloc] init]];
+    [self setCoffeeModel:[[CoffeModel alloc] init]];
+    
+    [self setCoffeeThreadIsFinished:YES];
+    [self setOfficeeThreadIsFinished:YES];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(coffeeModelUpdated) name:@"coffeeUpdated" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(officeOpenModelUpdated) name:@"officeUpdated" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateModels) name:UIApplicationDidBecomeActiveNotification object:nil];
-    
-    self.threadIsFinished = NO;
-    [NSThread detachNewThreadSelector:@selector(updateModels) toTarget:self withObject:nil];
 }
 
 - (void)updateModels
 {
     NSLog(@"Update Models");
-    if (self.coffeeModel == nil) {
-        self.coffeeModel = [[CoffeModel alloc] init];
-    } else {
+    if ([self coffeeThreadIsFinished]) {
+        NSLog(@"Update COFFEE");
+        [self setCoffeeThreadIsFinished:NO];
         [[self coffeeModel] refreshCoffeeStatus];
     }
-    if (self.officeOpenModel == nil) {
-        self.officeOpenModel = [[OfficeOpenModel alloc] init];
-    } else {
+    if ([self officeeThreadIsFinished]) {
+        NSLog(@"Update OFFICE");
+        [self setOfficeeThreadIsFinished:NO];
         [[self officeOpenModel] refreshOfficeData];
     }
 }
@@ -66,32 +70,20 @@
 
 - (IBAction)refreshButton:(id)sender
 {
-    if (self.threadIsFinished) {
-        NSLog(@"Refreshing, Thread FREE");
-        [[self servantLabel] setText:@" "];
-        [[self statusLabel] setText:@" "];
-        
-        if (self.coffeeModel != nil) {
-            [[self coffeeView] setText:@"Henter informasjon..."];
-            [[self coffeActivity] startAnimating];
-        }
-        
-        if (self.officeOpenModel != nil) {
-            [[self meetingView] setText:@"Henter informasjon..."];
-            [[self officeActivity] startAnimating];
-        }
-        
-        self.threadIsFinished = NO;
-        [NSThread detachNewThreadSelector:@selector(updateModels) toTarget:self withObject:nil];
-    } else {
-        NSLog(@"Not refreshing, Thread BUSY");
+    NSLog(@" ");
+    [[self servantLabel] setText:@" "];
+    [[self statusLabel] setText:@" "];
+    
+    if (self.coffeeModel != nil) {
+        [[self coffeeView] setText:@"Henter informasjon..."];
+        [[self coffeActivity] startAnimating];
     }
     
-}
-
-- (IBAction)infoPushed:(id)sender {
-    UIAlertView *someError = [[UIAlertView alloc] initWithTitle: @"Informasjon" message: @"https://github.com/hakloev/OnlineStatus" delegate: self cancelButtonTitle: @"OK" otherButtonTitles: nil];
-    [someError show];
+    if (self.officeOpenModel != nil) {
+        [[self meetingView] setText:@"Henter informasjon..."];
+        [[self officeActivity] startAnimating];
+    }
+    [self updateModels];
 }
 
 - (void)coffeeModelUpdated
@@ -99,6 +91,7 @@
     NSLog(@"Coffe Model Updated");
     [[self coffeActivity] stopAnimating];
     [[self coffeeView] setText:[[self coffeeModel] returnString]];
+    [self setCoffeeThreadIsFinished:YES];
 }
 
 - (void)officeOpenModelUpdated
@@ -117,8 +110,12 @@
         [stringForView appendString:@"\n"];
     }
     [[self meetingView] setText:stringForView];
-    
-    self.threadIsFinished = YES;
+    [self setOfficeeThreadIsFinished:YES];
+}
+
+- (IBAction)infoPushed:(id)sender {
+    UIAlertView *someError = [[UIAlertView alloc] initWithTitle: @"Informasjon" message: @"https://github.com/hakloev/OnlineStatus" delegate: self cancelButtonTitle: @"OK" otherButtonTitles: nil];
+    [someError show];
 }
 
 @end
