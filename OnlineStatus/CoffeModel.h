@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+#define coffeeUrl [NSURL URLWithString:@"http://draug.online.ntnu.no/coffee.txt"]
+
 @interface CoffeModel : NSObject
 
 @property (atomic) NSString *returnString;

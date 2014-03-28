@@ -8,31 +8,18 @@
 
 #import "CoffeModel.h"
 
-@interface CoffeModel ()
-
-//Private
-@property NSMutableData *responseData; // (strong, atomic) by default
-@property NSArray *coffeeStatus;
-@property NSOperationQueue *queue;
-@property NSURL *coffeeUrl;
-@property NSURLRequest *req;
-
-@end
-
 @implementation CoffeModel
 
 -(id)init
 {
     self = [super init];
     if (self) {
-        self.queue = [[NSOperationQueue alloc] init];
-        self.coffeeUrl = [NSURL URLWithString:@"http://draug.online.ntnu.no/coffee.txt"];
-        self.req = [NSURLRequest requestWithURL:self.coffeeUrl cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10.0];
-        self.responseData = [[NSMutableData alloc] init];
+        
     }
     return self;
 }
 
+/*
 - (void)refreshCoffeeStatus
 {
     [[self responseData] setLength:0];
@@ -54,38 +41,58 @@
                                }
                             }];
 }
+ */
 
-- (void)setCoffeeStatus
+- (void)refreshCoffeeStatus
 {
-    if ([[self responseData] length] == 0) {
+    [self setReturnString:nil];
+    [NSThread detachNewThreadSelector:@selector(downloadURL) toTarget:self withObject:nil];
+}
+
+- (void)downloadURL
+{
+    NSString *data = [[NSString alloc] initWithContentsOfURL:coffeeUrl encoding:NSUTF8StringEncoding error:NULL];
+    [self saveContentsOfUrlWith:data];
+}
+
+- (void)saveContentsOfUrlWith:(NSString *)data
+{
+    [self setCoffeeStatusWith:[data componentsSeparatedByString:@"\n"]];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [self didFinishDownload];
+    }];
+}
+
+- (void)didFinishDownload
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"coffeeUpdated" object:self];
+}
+
+- (void)setCoffeeStatusWith:(NSArray *)coffeeArray
+{
+    if ([coffeeArray count] == 0) {
         NSLog(@"Coffee response nil");
-        self.returnString = @"Kunne ikke hente informasjon\ngrunnet nettverksfeil!";
+        [self setReturnString:@"Kunne ikke hente informasjon\ngrunnet nettverksfeil!"];
         return;
     } else {
         NSLog(@"Coffee response not nil");
-        self.coffeeStatus = [[[NSString alloc] initWithData:[self responseData] encoding:NSUTF8StringEncoding] componentsSeparatedByString:@"\n"];
     }
     
     NSDateFormatter *format = [[NSDateFormatter alloc] init];
     [format setDateFormat:@"dd. LLLL yyyy HH:mm:ss"];
-    NSDate *lastCoffeeMade = [format dateFromString:[[self coffeeStatus] objectAtIndex:1]];
+    NSDate *lastCoffeeMade = [format dateFromString:[coffeeArray objectAtIndex:1]];
     [format setDateFormat:@"yyyy-MM-dd"];
     NSDate *today = [[NSDate alloc] init];
     
     if ([[format stringFromDate:lastCoffeeMade] isEqualToString:[format stringFromDate:today]]) {
         [format setDateFormat:@"HH:mm:ss"];
         NSString *lastCoffee = [format stringFromDate:lastCoffeeMade];
-        self.returnString = [NSString stringWithFormat:@"Antall kanner idag: %@\nSiste klokka: %@", [[self coffeeStatus] objectAtIndex:0], lastCoffee];
+        [self setReturnString:[NSString stringWithFormat:@"Antall kanner idag: %@\nSiste klokka: %@", [coffeeArray objectAtIndex:0], lastCoffee]];
         return;
     } else {
-        self.returnString = @"Ingen kaffe laget i dag!\n\nHar kontorvakta gjort\njobben sin?";
+        [self setReturnString:@"Ingen kaffe laget i dag!\n\nHar kontorvakta gjort\njobben sin?"];
         return;
     }
-}
-
-- (void)tellMainThreadReady
-{
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"coffeeUpdated" object:self];
 }
 
 @end
